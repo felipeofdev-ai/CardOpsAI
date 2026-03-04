@@ -174,7 +174,8 @@ Fast path:
 Manual load:
 
 ```bash
-DB_HOST=localhost DB_PORT=5432 DB_USER=postgres DB_NAME=cardops PGPASSWORD=postgres   ./scripts/load_all_sql.sh
+DB_HOST=localhost DB_PORT=5432 DB_USER=postgres DB_NAME=cardops PGPASSWORD=postgres \
+  ./scripts/load_all_sql.sh
 ```
 
 Detailed instructions: `docs/codespaces-quickstart.md`.
