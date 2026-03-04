@@ -147,8 +147,6 @@ CardOpsAI/
     └── codespaces-quickstart.md
 ```
 
-
-
 ## 9.9 Excellence Additions
 
 - Formal state machine (`state_definitions`, `state_transitions`, `*_state_log`) with validated transitions.
@@ -161,7 +159,6 @@ CardOpsAI/
 - Self-healing thresholds (`auto_adjust_threshold`) with audit log.
 - Network centrality influence scoring for merchant risk concentration.
 - 12-month risk capital forecast for CFO planning.
-
 
 ## Codespaces Bootstrap
 
