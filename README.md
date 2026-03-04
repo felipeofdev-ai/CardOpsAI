@@ -131,6 +131,11 @@ CardOpsAI/
 ├── engines/resilience/
 │   └── self_healing_thresholds.sql
 ├── benchmarks/
+├── scripts/
+│   ├── setup_codespaces.sh
+│   └── load_all_sql.sh
+├── interview_training/
+│   └── practice.sql
 └── docs/
     ├── architecture.md
     ├── capacity-model.md
@@ -138,10 +143,9 @@ CardOpsAI/
     ├── compliance.md
     ├── executive-metrics.md
     ├── risk-model.md
-    └── sql-native-operating-model.md
+    ├── sql-native-operating-model.md
+    └── codespaces-quickstart.md
 ```
-
-
 
 ## 9.9 Excellence Additions
 
@@ -155,6 +159,23 @@ CardOpsAI/
 - Self-healing thresholds (`auto_adjust_threshold`) with audit log.
 - Network centrality influence scoring for merchant risk concentration.
 - 12-month risk capital forecast for CFO planning.
+
+## Codespaces Bootstrap
+
+Fast path:
+
+```bash
+./scripts/setup_codespaces.sh
+```
+
+Manual load:
+
+```bash
+DB_HOST=localhost DB_PORT=5432 DB_USER=postgres DB_NAME=cardops PGPASSWORD=postgres \
+  ./scripts/load_all_sql.sh
+```
+
+Detailed instructions: `docs/codespaces-quickstart.md`.
 
 ## License
 
