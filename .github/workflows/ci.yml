@@ -31,4 +31,4 @@ jobs:
           DB_USER: postgres
           DB_NAME: cardops
           PGPASSWORD: postgres
-        run: bash scripts/load_all_sql.sh
+        run: bash scripts/ci_smoke.sh
