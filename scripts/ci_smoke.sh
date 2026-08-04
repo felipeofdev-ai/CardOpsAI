@@ -15,6 +15,7 @@ run_sql() {
 }
 
 run_sql database/schema/cardops_os.sql
+run_sql database/schema/ci_transactions_stub.sql
 run_sql database/schema/event_ingestion.sql
 run_sql database/schema/feature_store.sql
 run_sql database/schema/threshold_registry.sql
@@ -24,7 +25,7 @@ run_sql database/schema/tier1_extensions.sql
 run_sql database/schema/risk_state_machine.sql
 run_sql database/schema/resilience_controls.sql
 run_sql database/schema/tenant_limits.sql
-# economic_guardrails.sql references transactions table (not yet in schema)
+run_sql database/schema/economic_guardrails.sql
 run_sql database/rls-policies/multi_tenant_rls.sql
 run_sql snapshots/config_snapshot_engine.sql
 run_sql snapshots/replay/deterministic_time.sql
