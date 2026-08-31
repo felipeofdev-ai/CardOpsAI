@@ -16,7 +16,10 @@ ALTER TABLE decision_audit_log
   ADD COLUMN IF NOT EXISTS snapshot_id UUID REFERENCES config_snapshots(snapshot_id),
   ADD COLUMN IF NOT EXISTS previous_hash TEXT,
   ADD COLUMN IF NOT EXISTS decision_hash TEXT,
-  ADD COLUMN IF NOT EXISTS tenant_id BIGINT;
+  ADD COLUMN IF NOT EXISTS tenant_id BIGINT,
+  ADD COLUMN IF NOT EXISTS payload JSONB,
+  ADD COLUMN IF NOT EXISTS transaction_id BIGINT,
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_decision_tenant_time
   ON decision_audit_log (tenant_id, created_at DESC);
@@ -69,7 +72,8 @@ CREATE OR REPLACE FUNCTION append_tamper_evident_decision(
   p_model_version_id BIGINT,
   p_snapshot_id UUID,
   p_tenant_id BIGINT,
-  p_payload JSONB
+  p_payload JSONB,
+  p_transaction_id BIGINT DEFAULT NULL
 )
 RETURNS BIGINT AS $$
 DECLARE
@@ -80,18 +84,22 @@ BEGIN
   SELECT decision_hash INTO v_prev_hash
   FROM decision_audit_log
   WHERE tenant_id = p_tenant_id
+    AND decision_hash IS NOT NULL
   ORDER BY id DESC
   LIMIT 1;
 
+  v_prev_hash := COALESCE(v_prev_hash, 'GENESIS');
   v_hash := compute_decision_hash(v_prev_hash, p_payload);
 
   INSERT INTO decision_audit_log (
     merchant_id, problem_id, decision_score, action_taken,
-    model_version_id, snapshot_id, tenant_id, previous_hash, decision_hash
+    model_version_id, snapshot_id, tenant_id, previous_hash, decision_hash,
+    payload, transaction_id, outcome
   )
   VALUES (
     p_merchant_id, p_problem_id, p_decision_score, p_action_taken,
-    p_model_version_id, p_snapshot_id, p_tenant_id, v_prev_hash, v_hash
+    p_model_version_id, p_snapshot_id, p_tenant_id, v_prev_hash, v_hash,
+    p_payload, p_transaction_id, p_action_taken
   )
   RETURNING id INTO v_id;
 

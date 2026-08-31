@@ -1,5 +1,6 @@
--- Deterministic time control for replay and simulation
--- Supports cardops.replay_time (legacy) and cardops.mock_now (tests)
+-- Extensions + deterministic clock (supports both GUCs used across CardOpsAI)
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE OR REPLACE FUNCTION cardops_now()
 RETURNS TIMESTAMPTZ AS $$
@@ -19,3 +20,11 @@ CREATE OR REPLACE FUNCTION clear_replay_time()
 RETURNS VOID AS $$
   SELECT set_config('cardops.replay_time', '', true);
 $$ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = cardops_now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;

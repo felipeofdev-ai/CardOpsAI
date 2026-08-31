@@ -15,6 +15,19 @@ CREATE TABLE IF NOT EXISTS risk_rules (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Tier-1 scoring columns (idempotent)
+ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS tenant_id BIGINT;
+ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS rule_expression TEXT;
+ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS threshold NUMERIC(12,4) DEFAULT 50;
+ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS is_active BOOLEAN;
+ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS version INT DEFAULT 1;
+ALTER TABLE risk_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+UPDATE risk_rules
+   SET rule_expression = COALESCE(rule_expression, sql_condition),
+       is_active = COALESCE(is_active, active),
+       threshold = COALESCE(threshold, 50);
+
 CREATE TABLE IF NOT EXISTS decision_audit_log (
   id BIGSERIAL PRIMARY KEY,
   tenant_id BIGINT NOT NULL,

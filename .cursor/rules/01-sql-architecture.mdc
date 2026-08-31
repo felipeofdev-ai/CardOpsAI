@@ -1,0 +1,39 @@
+---
+description: SQL architecture standards for CardOps — idempotent DDL, cardops_now(), triggers
+globs:
+  - "database/**/*.sql"
+  - "engines/**/*.sql"
+  - "snapshots/**/*.sql"
+  - "stress/**/*.sql"
+alwaysApply: false
+---
+
+# SQL Architecture Rules
+
+## Idempotent DDL (mandatory)
+- Use `CREATE TABLE IF NOT EXISTS` for all tables.
+- Use `CREATE OR REPLACE FUNCTION` for all functions.
+- Use `CREATE INDEX IF NOT EXISTS` for all indexes.
+- Use `DO $$ ... $$` blocks with existence checks for types, policies, and triggers.
+- Schema files must be safely re-runnable without errors.
+
+## Time Source
+- NEVER call `NOW()` or `CURRENT_TIMESTAMP` directly in application SQL.
+- ALWAYS use `cardops_now()` so tests can inject a deterministic clock via `cardops.mock_now`.
+
+## Table Conventions
+- Every table MUST include:
+  - `created_at TIMESTAMPTZ NOT NULL DEFAULT cardops_now()`
+  - `updated_at TIMESTAMPTZ NOT NULL DEFAULT cardops_now()`
+- Every table MUST have an `updated_at` trigger calling `set_updated_at()`.
+- Core entities use `UUID` PKs; high-throughput ledgers use `BIGSERIAL`.
+- Tenant-scoped tables MUST include `tenant_id BIGINT NOT NULL`.
+
+## Hash & Audit
+- Decision audit entries must maintain a SHA-256 hash chain (`previous_hash` → `current_hash`).
+- Never store raw PAN; only `card_hash` (SHA-256 hex).
+
+## Indexing
+- B-tree for equality lookups (`tenant_id`, FKs, status).
+- BRIN for append-only timestamp columns on high-volume tables.
+- GIN for JSONB columns queried by key.

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CardOps AI — Risk Operations Dashboard</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --good: #3fb950;
+    --bad: #f85149;
+    --warn: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", "IBM Plex Sans", sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #1f6feb33, transparent),
+      radial-gradient(900px 500px at 100% 0%, #23863622, transparent),
+      var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(8px);
+    position: sticky;
+    top: 0;
+    background: #0d1117cc;
+    z-index: 10;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+  }
+  header span { color: var(--muted); font-size: 0.85rem; }
+  main {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1rem;
+    padding: 1rem 1.5rem 2rem;
+  }
+  section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    animation: rise 0.5s ease both;
+  }
+  section:nth-child(1) { grid-column: span 4; animation-delay: 0.05s; }
+  section:nth-child(2) { grid-column: span 8; animation-delay: 0.1s; }
+  section:nth-child(3) { grid-column: span 6; animation-delay: 0.15s; }
+  section:nth-child(4) { grid-column: span 6; animation-delay: 0.2s; }
+  section:nth-child(5) { grid-column: span 12; animation-delay: 0.25s; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: none; }
+  }
+  h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--accent); }
+  label { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
+  input, select, button {
+    width: 100%;
+    margin-top: 0.25rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #0d1117;
+    color: var(--text);
+  }
+  button {
+    background: linear-gradient(180deg, #1f6feb, #1158c7);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 0.85rem;
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+  button:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  button.danger { background: linear-gradient(180deg, #da3633, #a40e26); }
+  .score {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.75rem 0 0.25rem;
+  }
+  .muted { color: var(--muted); font-size: 0.8rem; }
+  .rules { margin-top: 0.75rem; max-height: 160px; overflow: auto; }
+  .rule {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid #21262d;
+    font-size: 0.8rem;
+  }
+  .fired { color: var(--warn); }
+  .ok { color: var(--good); }
+  .chain {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+  .block {
+    min-width: 120px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem;
+    background: #0d1117;
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  .block.broken {
+    border-color: var(--bad);
+    background: #f8514922;
+    animation: pulse 1s ease infinite;
+  }
+  @keyframes pulse {
+    50% { box-shadow: 0 0 0 3px #f8514933; }
+  }
+  .block code { font-size: 0.65rem; color: var(--muted); word-break: break-all; }
+  canvas { width: 100%; height: 220px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); }
+  svg { width: 100%; height: 260px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); }
+  .health {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+  .metric {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem;
+  }
+  .metric b { display: block; font-size: 1.2rem; margin-top: 0.25rem; }
+  @media (max-width: 900px) {
+    section, section:nth-child(n) { grid-column: span 12; }
+    .health { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>CardOps AI — Risk Operations Dashboard</h1>
+  <span>Local demo · no external deps</span>
+</header>
+<main>
+  <section>
+    <h2>Transaction Simulator</h2>
+    <label>Amount (cents)</label>
+    <input id="amount" type="number" value="125000" />
+    <label>Merchant risk</label>
+    <input id="merchantRisk" type="number" value="72" />
+    <label>Card risk</label>
+    <input id="cardRisk" type="number" value="40" />
+    <label>MCC</label>
+    <select id="mcc">
+      <option>5411</option>
+      <option selected>7995</option>
+      <option>5912</option>
+      <option>5812</option>
+    </select>
+    <button id="scoreBtn">Compute Risk Score</button>
+    <div class="score" id="scoreOut">—</div>
+    <div class="muted" id="decisionOut">Decision explainability appears here</div>
+    <div class="rules" id="rulesOut"></div>
+  </section>
+
+  <section>
+    <h2>Hash Chain Visualizer</h2>
+    <div class="chain" id="chain"></div>
+    <button class="danger" id="tamperBtn">Simulate Malicious Tamper</button>
+    <p class="muted" id="chainStatus">Chain integrity: OK</p>
+  </section>
+
+  <section>
+    <h2>Monte Carlo Loss Distribution</h2>
+    <canvas id="mcChart" width="640" height="220"></canvas>
+    <p class="muted" id="mcLegend"></p>
+  </section>
+
+  <section>
+    <h2>Fraud Ring Graph</h2>
+    <svg id="ringSvg" viewBox="0 0 640 260"></svg>
+  </section>
+
+  <section>
+    <h2>System Health</h2>
+    <div class="health" id="health"></div>
+  </section>
+</main>
+<script>
+const RULES = [
+  { name: 'high_amount', test: s => s.amount >= 100000, weight: 1.2 },
+  { name: 'risky_mcc', test: s => ['7995','5912','5122'].includes(s.mcc), weight: 1.5 },
+  { name: 'merchant_elevated', test: s => s.merchantRisk >= 60, weight: 1.1 },
+  { name: 'card_elevated', test: s => s.cardRisk >= 60, weight: 1.0 },
+  { name: 'decline_band', test: s => s.amount >= 200000, weight: 2.0 },
+  { name: 'review_band', test: s => s.amount >= 40000 && s.amount < 100000, weight: 0.8 },
+  { name: 'feature_spike', test: s => s.merchantRisk + s.cardRisk >= 120, weight: 1.3 },
+];
+
+function scoreTransaction(s) {
+  let w = 0, f = 0;
+  const detail = RULES.map(r => {
+    const fired = r.test(s);
+    w += r.weight;
+    if (fired) f += r.weight;
+    return { ...r, fired };
+  });
+  const score = Math.round((f / w) * 10000) / 100;
+  let decision = 'review';
+  if (score < 40) decision = 'approved';
+  else if (score > 80) decision = 'declined';
+  return { score, decision, detail };
+}
+
+document.getElementById('scoreBtn').onclick = () => {
+  const s = {
+    amount: Number(document.getElementById('amount').value),
+    merchantRisk: Number(document.getElementById('merchantRisk').value),
+    cardRisk: Number(document.getElementById('cardRisk').value),
+    mcc: document.getElementById('mcc').value,
+  };
+  const r = scoreTransaction(s);
+  document.getElementById('scoreOut').textContent = r.score.toFixed(2);
+  document.getElementById('decisionOut').textContent = `Decision: ${r.decision.toUpperCase()} · threshold band 40 / 80`;
+  document.getElementById('rulesOut').innerHTML = r.detail.map(d =>
+    `<div class="rule"><span>${d.name}</span><span class="${d.fired ? 'fired' : 'ok'}">${d.fired ? 'FIRED' : 'ok'} · w=${d.weight}</span></div>`
+  ).join('');
+};
+
+function sha256sync(str) {
+  // Lightweight demo hash (not cryptographic) for UI visualization only
+  let h1 = 0x811c9dc5 >>> 0, h2 = 0x811c9dc5 >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h1 = Math.imul(h1 ^ str.charCodeAt(i), 16777619) >>> 0;
+    h2 = Math.imul(h2 ^ (str.charCodeAt(i) + i), 2246822519) >>> 0;
+  }
+  return (h1.toString(16).padStart(8,'0') + h2.toString(16).padStart(8,'0')).repeat(4).slice(0, 64);
+}
+
+let chain = [];
+function buildChain(n = 6) {
+  chain = [];
+  let prev = 'GENESIS';
+  for (let i = 1; i <= n; i++) {
+    const decision = i % 3 === 0 ? 'declined' : (i % 2 ? 'approved' : 'review');
+    const payload = `${prev}|txn=${1000+i}|${decision}|amt=${10000*i}`;
+    const current = sha256sync(payload);
+    chain.push({ id: i, prev, current, decision, broken: false });
+    prev = current;
+  }
+  renderChain();
+}
+
+function renderChain() {
+  const el = document.getElementById('chain');
+  el.innerHTML = chain.map(b => `
+    <div class="block ${b.broken ? 'broken' : ''}">
+      <div>#${b.id} · ${b.decision}</div>
+      <code>${b.current.slice(0, 16)}…</code>
+    </div>
+  `).join('<div style="align-self:center;color:#8b949e">→</div>');
+  const broken = chain.some(b => b.broken);
+  document.getElementById('chainStatus').textContent = broken
+    ? 'Chain integrity: BROKEN — subsequent blocks invalidated'
+    : 'Chain integrity: OK';
+  document.getElementById('chainStatus').style.color = broken ? '#f85149' : '#3fb950';
+}
+
+document.getElementById('tamperBtn').onclick = () => {
+  if (!chain.length) return;
+  const idx = 2;
+  chain[idx].decision = chain[idx].decision === 'approved' ? 'declined' : 'approved';
+  for (let i = idx; i < chain.length; i++) chain[i].broken = true;
+  renderChain();
+};
+
+function drawMonteCarlo() {
+  const canvas = document.getElementById('mcChart');
+  const ctx = canvas.getContext('2d');
+  const losses = [];
+  for (let i = 0; i < 1000; i++) {
+    const u1 = Math.max(Math.random(), 1e-12);
+    const u2 = Math.max(Math.random(), 1e-12);
+    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    losses.push(Math.max(0, 250000 + 80000 * z) * 30);
+  }
+  losses.sort((a,b) => a-b);
+  const var95 = losses[Math.floor(losses.length * 0.95)];
+  const var99 = losses[Math.floor(losses.length * 0.99)];
+  const cvar = losses.slice(Math.floor(losses.length * 0.95)).reduce((a,b)=>a+b,0) / (losses.length * 0.05);
+
+  const bins = 30;
+  const min = losses[0], max = losses[losses.length-1];
+  const hist = Array(bins).fill(0);
+  losses.forEach(v => {
+    const i = Math.min(bins-1, Math.floor((v - min) / (max - min + 1) * bins));
+    hist[i]++;
+  });
+  const maxH = Math.max(...hist);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const w = canvas.width / bins;
+  hist.forEach((h,i) => {
+    const height = (h / maxH) * (canvas.height - 30);
+    ctx.fillStyle = '#58a6ff88';
+    ctx.fillRect(i*w+1, canvas.height - height - 10, w-2, height);
+  });
+  function xFor(v){ return ((v-min)/(max-min)) * canvas.width; }
+  function line(v, color, label){
+    const x = xFor(v);
+    ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
+    ctx.fillStyle = color; ctx.fillText(label, x+4, 14);
+  }
+  line(var95, '#d29922', 'VaR95');
+  line(var99, '#f85149', 'VaR99');
+  line(cvar, '#3fb950', 'CVaR95');
+  document.getElementById('mcLegend').textContent =
+    `VaR95=${var95.toFixed(0)} · VaR99=${var99.toFixed(0)} · CVaR95=${cvar.toFixed(0)} · reserve=${(cvar*1.2).toFixed(0)}`;
+}
+
+function drawRings() {
+  const svg = document.getElementById('ringSvg');
+  const nodes = [
+    {id:1,x:180,y:130},{id:2,x:300,y:60},{id:3,x:420,y:130},{id:4,x:300,y:200},
+    {id:5,x:520,y:80},{id:6,x:560,y:180}
+  ];
+  const edges = [[1,2],[2,3],[3,4],[4,1],[5,6]];
+  const ring = new Set([1,2,3,4]);
+  let html = '';
+  edges.forEach(([a,b]) => {
+    const n1 = nodes.find(n=>n.id===a), n2 = nodes.find(n=>n.id===b);
+    const hot = ring.has(a) && ring.has(b);
+    html += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${hot?'#f85149':'#30363d'}" stroke-width="${hot?3:1.5}" />`;
+  });
+  nodes.forEach(n => {
+    const hot = ring.has(n.id);
+    html += `<circle cx="${n.x}" cy="${n.y}" r="16" fill="${hot?'#f8514933':'#161b22'}" stroke="${hot?'#f85149':'#58a6ff'}" stroke-width="2">
+      <animate attributeName="r" values="16;18;16" dur="2s" repeatCount="indefinite"/></circle>`;
+    html += `<text x="${n.x}" y="${n.y+4}" text-anchor="middle" fill="#e6edf3" font-size="11">M${n.id}</text>`;
+  });
+  html += `<text x="24" y="28" fill="#8b949e" font-size="12">Highlighted cycle = suspected fraud ring</text>`;
+  svg.innerHTML = html;
+}
+
+function drawHealth() {
+  const started = Date.now() - 3_600_000;
+  const metrics = [
+    ['Queue depth', '47'],
+    ['Active rules', '15'],
+    ['Last snapshot', 'a3f9…c21e'],
+    ['Uptime', '1h+'],
+  ];
+  document.getElementById('health').innerHTML = metrics.map(([k,v]) =>
+    `<div class="metric"><span class="muted">${k}</span><b>${v}</b></div>`
+  ).join('');
+  setInterval(() => {
+    const hrs = ((Date.now()-started)/3600000);
+    document.querySelectorAll('.metric b')[3].textContent = hrs.toFixed(2) + 'h';
+  }, 1000);
+}
+
+buildChain();
+drawMonteCarlo();
+drawRings();
+drawHealth();
+document.getElementById('scoreBtn').click();
+</script>
+</body>
+</html>

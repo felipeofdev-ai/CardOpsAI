@@ -24,11 +24,41 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - name: Apply SQL stack
+      - name: Apply SQL stack (smoke)
         env:
           DB_HOST: localhost
           DB_PORT: 5432
           DB_USER: postgres
           DB_NAME: cardops
           PGPASSWORD: postgres
+          SKIP_SEED: "0"
         run: bash scripts/ci_smoke.sh
+
+  pytest:
+    runs-on: ubuntu-latest
+    needs: sql-smoke
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: cardops_db
+          POSTGRES_USER: cardops
+          POSTGRES_PASSWORD: cardops_secret
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cardops -d cardops_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      CARDOPS_DSN: postgresql://cardops:cardops_secret@localhost:5432/cardops_db
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: bash scripts/load_all_sql.sh
+      - run: pytest -q tests

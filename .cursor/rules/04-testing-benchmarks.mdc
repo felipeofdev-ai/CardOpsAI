@@ -1,0 +1,27 @@
+---
+description: Testing and benchmark standards for CardOps SQL and Python
+globs:
+  - "tests/**/*.py"
+  - "scripts/**/*.sh"
+  - ".github/workflows/**"
+alwaysApply: false
+---
+
+# Testing & Benchmarks
+
+## Coverage
+- Every public SQL function MUST have at least one Pytest assertion covering happy path.
+- Critical paths (ledger integrity, RLS, Monte Carlo invariants) require negative/edge tests.
+
+## Performance Budgets
+- Individual Pytest cases SHOULD complete in under 5 seconds (excluding one-time schema bootstrap).
+- Benchmarks MUST report p95 latency.
+- Decision batch processing p95 target: < 200ms per item on local Docker Postgres for seed-scale data.
+
+## Fixtures
+- Use `db_connection`, `setup_schema`, `seed_data`, and `tenant_context` from `conftest.py`.
+- Override clock with `SET cardops.mock_now = '...'` when asserting temporal behavior.
+
+## CI Expectations
+- Order: lint-sql → test → smoke → benchmark.
+- Fail CI on any integrity or RLS leakage failure.

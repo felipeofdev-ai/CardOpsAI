@@ -1,0 +1,37 @@
+---
+description: Multi-tenant RLS and tenant context enforcement for CardOps
+globs:
+  - "database/**/*.sql"
+  - "engines/**/*.sql"
+  - "tests/**/*.py"
+  - "cardops_cli.py"
+alwaysApply: false
+---
+
+# Security & Tenancy Rules
+
+## RLS Mandatory
+- Every table with `tenant_id` MUST have `ALTER TABLE ... ENABLE ROW LEVEL SECURITY`.
+- Every such table MUST have a policy:
+  ```sql
+  CREATE POLICY tenant_isolation ON <table>
+    FOR ALL
+    USING (tenant_id = get_current_tenant());
+  ```
+- Prefer `FORCE ROW LEVEL SECURITY` so even table owners cannot bypass isolation in app roles.
+
+## Tenant Context
+- Set tenant via `SELECT set_tenant(p_tenant_id)`.
+- Read tenant via `get_current_tenant()`.
+- Clear via `clear_tenant()`.
+- Session GUC key: `app.current_tenant`.
+
+## Query Rules
+- Application queries MUST run after `set_tenant()`.
+- Never join or filter across tenants.
+- Seeds and admin scripts that need cross-tenant access must use an explicit superuser connection and document why.
+
+## Sensitive Data
+- Never store raw PAN, CVV, or full track data.
+- Card identity is `card_hash` only (SHA-256 of PAN + salt conceptually).
+- Secrets (DB passwords) stay in env / docker-compose; never hardcode in docs beyond local-dev defaults.

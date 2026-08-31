@@ -1,0 +1,33 @@
+---
+description: Cursor agent workflows for risk rules, stress, audit, and schema deploy
+globs:
+  - ".cursor/prompts/**"
+  - "engines/**/*.sql"
+  - "database/**/*.sql"
+alwaysApply: false
+---
+
+# Cursor Agent Workflows
+
+## Create Risk Rule
+1. Read existing `risk_rules` schema and scoring engine.
+2. Add SQL expression + seed/test fixtures.
+3. Add Pytest covering trigger condition and score contribution.
+4. Create config snapshot and verify Merkle root changes.
+
+## Run Stress Test
+1. Ensure DB is up and seeded.
+2. Call `run_monte_carlo_stress(...)` with requested iterations/horizon.
+3. Assert VaR99 > VaR95 and CVaR95 >= VaR95.
+4. Report JSON metrics via CLI `stress` command.
+
+## Audit Ledger Integrity
+1. Call `verify_decision_ledger_integrity()`.
+2. If broken, report first bad `id` and expected vs actual hash.
+3. Never "fix" by rewriting chain without an explicit incident procedure.
+
+## Deploy Schema Changes
+1. Ensure DDL is idempotent.
+2. Run `scripts/load_all_sql.sh` (or Makefile `db-seed`).
+3. Run `pytest` + smoke script.
+4. Document migration impact in README / story notes.

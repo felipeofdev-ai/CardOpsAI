@@ -1,0 +1,9 @@
+[sqlfluff]
+dialect = postgres
+max_line_length = 120
+templater = raw
+exclude_rules = LT01,LT02,LT03,LT04,LT05,LT12,CP01,CP02,CP03,CP04,CP05,RF01,RF03,RF04,AL01,AL05,ST06,AM04
+
+[sqlfluff:indentation]
+tab_space_size = 4
+indent_unit = space

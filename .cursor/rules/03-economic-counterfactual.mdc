@@ -1,0 +1,32 @@
+---
+description: Counterfactual simulation, config snapshots, and replayability rules
+globs:
+  - "snapshots/**/*.sql"
+  - "engines/**/*.sql"
+  - "database/schema/12_*.sql"
+  - "database/schema/13_*.sql"
+alwaysApply: false
+---
+
+# Economic Counterfactual Rules
+
+## Replayability
+- Every risk decision must be reconstructible from:
+  1. Transaction inputs
+  2. Config snapshot (rules + thresholds + models)
+  3. Feature store values at decision time
+- Prefer storing `rule_snapshot_hash` on every audit row.
+
+## Config Snapshots
+- Snapshots MUST compute three leaf hashes then a Merkle root:
+  - `rules_hash` = SHA-256 of ordered active rule expressions
+  - `thresholds_hash` = SHA-256 of ordered thresholds/weights
+  - `models_hash` = SHA-256 of feature model fingerprints
+  - `snapshot_hash` = SHA-256(rules_hash || thresholds_hash || models_hash)
+- Use `encode(digest(..., 'sha256'), 'hex')` (pgcrypto).
+
+## Counterfactual Scenarios
+- Clone a production `config_snapshots` row as `base_snapshot_id`.
+- Mutate ONLY the parameters listed in `mutated_params` JSONB.
+- Persist `result_metrics` JSONB after replay (approved/declined/review deltas, loss estimates).
+- Never mutate live `risk_rules` in-place for what-if runs — use scenario tables / temporary override sets.

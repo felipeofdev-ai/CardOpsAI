@@ -1,0 +1,30 @@
+# CardOps AI — Master Cursor Rules
+
+This is a financial risk operating system. Data integrity is paramount.
+All decisions must be auditable and replayable.
+
+## Project Context
+- Path: CardOps/
+- Stack: PostgreSQL 16/17 (primary compute), Python CLI/tests, Docker Compose
+- Priority: CLI First → Observability Second → UI Third
+
+## Modular Rules (always respect)
+- `.cursor/rules/01-sql-architecture.mdc` — idempotent DDL, `cardops_now()`, updated_at triggers
+- `.cursor/rules/02-security-tenancy.mdc` — RLS + `app.current_tenant`, no PAN storage
+- `.cursor/rules/03-economic-counterfactual.mdc` — Merkle snapshots, replayable decisions
+- `.cursor/rules/04-testing-benchmarks.mdc` — Pytest per SQL function, p95 benchmarks
+- `.cursor/rules/05-cursor-agent-workflows.mdc` — rule creation, stress, audit, schema deploy
+
+## Non-Negotiables
+1. NO placeholders, stubs, or TODO comments in shipped code.
+2. NO external API calls — everything runs against local PostgreSQL.
+3. Use `cardops_now()` everywhere; never raw `NOW()`.
+4. All DDL must be idempotent and re-runnable.
+5. Every decision writes to the SHA-256 hash chain audit log.
+6. Tenant isolation via RLS is mandatory on every `tenant_id` table.
+
+## Agent Prompts
+- `/create-risk-rule` → `.cursor/prompts/create-risk-rule.md`
+- `/run-counterfactual-simulation` → `.cursor/prompts/run-counterfactual-simulation.md`
+- `/verify-ledger-integrity` → `.cursor/prompts/verify-ledger-integrity.md`
+- `/monte-carlo-stress` → `.cursor/prompts/monte-carlo-stress.md`

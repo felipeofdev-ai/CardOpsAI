@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://cardops:cardops_secret@localhost:5432/cardops_db"
+      ],
+      "env": {}
+    }
+  }
+}

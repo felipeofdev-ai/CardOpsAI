@@ -1,0 +1,4 @@
+psycopg2-binary>=2.9
+pytest>=7.0
+pytest-ordering>=0.6
+sqlfluff>=3.0

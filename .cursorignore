@@ -1,0 +1,10 @@
+﻿node_modules/
+__pycache__/
+.venv/
+*.pyc
+docker-data/
+.pytest_cache/
+.env
+*.egg-info/
+dist/
+build/
