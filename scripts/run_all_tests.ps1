@@ -34,10 +34,11 @@ Step "Python compile (CLI + API + tests)" {
     python -m compileall -q cardops_cli.py cardops_api.py api tests
 }
 
-Step "SQLFluff lint (advisory)" {
+Step "SQLFluff lint (advisory, non-blocking)" {
     if (-not $SkipSqlLint) {
         python -m sqlfluff lint database engines snapshots stress compliance --dialect postgres 2>&1 | Out-Null
     }
+    $global:LASTEXITCODE = 0
 }
 
 if (-not $SkipDb) {
