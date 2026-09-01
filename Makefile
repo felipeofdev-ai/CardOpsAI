@@ -18,6 +18,9 @@ test:
 lint:
 	python -m compileall cardops_cli.py cardops_api.py api tests
 
+test-all:
+	powershell -ExecutionPolicy Bypass -File scripts/run_all_tests.ps1
+
 stress:
 	python cardops_cli.py stress --iterations 2000 --horizon 30
 

@@ -17,24 +17,34 @@ DSN = os.environ.get(
 
 REQUIRED_FILES = [
     "cardops_cli.py",
+    "cardops_api.py",
+    "api/server.py",
     "docker-compose.yml",
     "Makefile",
     "requirements.txt",
     "scripts/load_all_sql.sh",
     "database/schema/00_extensions_and_clock.sql",
     "database/schema/01_core_entities.sql",
+    "database/schema/02_integrity_and_scale.sql",
+    "database/schema/04_partition_stubs.sql",
     "database/seeds/synthetic_seed.sql",
     "database/functions/hash_chain.sql",
     "engines/scoring/risk_score_engine.sql",
     "engines/decision/decision_processor.sql",
     "engines/features/velocity_engine.sql",
     "engines/decision/explainability_and_triage.sql",
+    "engines/decision/cost_sensitive_triage.sql",
     "engines/decision/champion_challenger.sql",
+    "engines/decision/shadow_backtest.sql",
+    "engines/scoring/ml_challenger.sql",
     "engines/fraud/geo_velocity.sql",
+    "compliance/regulatory_export.sql",
     "stress/box_muller_monte_carlo.sql",
     "docs/dashboard.html",
     "tests/test_tier1_platform.py",
     "tests/test_ops_intelligence.py",
+    "tests/test_tier0_enterprise.py",
+    "tests/test_api_smoke.py",
 ]
 
 REQUIRED_FUNCTIONS = [
@@ -82,7 +92,7 @@ def check_files() -> list[str]:
 def check_python() -> list[str]:
     errors = []
     print("\n== Python syntax ==")
-    for path in [ROOT / "cardops_cli.py", ROOT / "tests"]:
+    for path in [ROOT / "cardops_cli.py", ROOT / "cardops_api.py", ROOT / "api", ROOT / "tests"]:
         r = subprocess.run(
             [sys.executable, "-m", "compileall", "-q", str(path)],
             capture_output=True,
@@ -195,6 +205,26 @@ def check_cli() -> list[str]:
         else:
             fail(f"{label}: {r.stderr.strip() or r.stdout.strip()}")
             errors.append(label)
+    return errors
+
+
+def check_api_smoke() -> list[str]:
+    errors = []
+    print("\n== API smoke (TestClient) ==")
+    r = subprocess.run(
+        [sys.executable, "-m", "pytest", "-q", "tests/test_api_smoke.py"],
+        capture_output=True,
+        text=True,
+        cwd=str(ROOT),
+    )
+    print(r.stdout)
+    if r.returncode == 0:
+        ok("api endpoints")
+    else:
+        fail("api smoke failed")
+        if r.stderr:
+            print(r.stderr[:2000])
+        errors.append("api_smoke")
     return errors
 
 
