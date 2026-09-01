@@ -1,28 +1,28 @@
 -- Velocity / behavioral features (leakage-safe: looking only at prior txs)
 -- Patterns inspired by production fraud engines: rolling counts, spikes, dormancy.
 
+CREATE TABLE IF NOT EXISTS velocity_features (
+  tenant_id BIGINT NOT NULL,
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('card', 'merchant')),
+  entity_id TEXT NOT NULL,
+  tx_count_1h INT NOT NULL DEFAULT 0,
+  tx_count_24h INT NOT NULL DEFAULT 0,
+  tx_count_7d INT NOT NULL DEFAULT 0,
+  amount_sum_24h NUMERIC(18,2) NOT NULL DEFAULT 0,
+  amount_avg_7d NUMERIC(18,2) NOT NULL DEFAULT 0,
+  amount_max_30d NUMERIC(18,2) NOT NULL DEFAULT 0,
+  hours_since_last_tx NUMERIC(12,4),
+  amount_spike_ratio NUMERIC(12,4),
+  computed_at TIMESTAMPTZ NOT NULL DEFAULT cardops_now(),
+  PRIMARY KEY (tenant_id, entity_type, entity_id)
+);
+
 CREATE OR REPLACE FUNCTION refresh_velocity_features(p_tenant_id BIGINT DEFAULT NULL)
 RETURNS INT AS $$
 DECLARE
   v_count INT := 0;
   v_total INT := 0;
 BEGIN
-  CREATE TABLE IF NOT EXISTS velocity_features (
-    tenant_id BIGINT NOT NULL,
-    entity_type TEXT NOT NULL CHECK (entity_type IN ('card', 'merchant')),
-    entity_id TEXT NOT NULL,
-    tx_count_1h INT NOT NULL DEFAULT 0,
-    tx_count_24h INT NOT NULL DEFAULT 0,
-    tx_count_7d INT NOT NULL DEFAULT 0,
-    amount_sum_24h NUMERIC(18,2) NOT NULL DEFAULT 0,
-    amount_avg_7d NUMERIC(18,2) NOT NULL DEFAULT 0,
-    amount_max_30d NUMERIC(18,2) NOT NULL DEFAULT 0,
-    hours_since_last_tx NUMERIC(12,4),
-    amount_spike_ratio NUMERIC(12,4),
-    computed_at TIMESTAMPTZ NOT NULL DEFAULT cardops_now(),
-    PRIMARY KEY (tenant_id, entity_type, entity_id)
-  );
-
   -- Merchant velocity
   INSERT INTO velocity_features AS vf (
     tenant_id, entity_type, entity_id,
