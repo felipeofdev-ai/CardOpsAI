@@ -30,12 +30,12 @@ BEGIN
     SELECT LEAST(root, member) AS cluster_id, member AS merchant_id
     FROM cc
   ), counted AS (
-    SELECT cluster_id, merchant_id, COUNT(*) OVER (PARTITION BY cluster_id) AS size
-    FROM normalized
+    SELECT n.cluster_id, n.merchant_id, COUNT(*) OVER (PARTITION BY n.cluster_id) AS size
+    FROM normalized n
   )
-  SELECT DISTINCT cluster_id, merchant_id, size
-  FROM counted
-  WHERE size >= p_min_size
-  ORDER BY size DESC, cluster_id, merchant_id;
+  SELECT DISTINCT c.cluster_id, c.merchant_id, c.size
+  FROM counted c
+  WHERE c.size >= p_min_size
+  ORDER BY c.size DESC, c.cluster_id, c.merchant_id;
 END;
 $$ LANGUAGE plpgsql;
