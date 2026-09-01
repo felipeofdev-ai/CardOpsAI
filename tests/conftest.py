@@ -66,6 +66,7 @@ def setup_schema(db_connection):
             "database/schema/01_core_entities.sql",
             "database/schema/02_integrity_and_scale.sql",
             "database/schema/cardops_os.sql",
+            "database/schema/04_partition_stubs.sql",
             "database/schema/event_ingestion.sql",
             "database/schema/03_queue_notify.sql",
             "database/schema/tier1_extensions.sql",

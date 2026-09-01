@@ -72,13 +72,9 @@ CREATE TABLE IF NOT EXISTS regulatory_exports (
   created_at TIMESTAMPTZ NOT NULL DEFAULT cardops_now()
 );
 
--- Partition-ready parent tables (attach partitions in production)
+-- Partition-ready parent for transactions (attach monthly partitions in production)
 CREATE TABLE IF NOT EXISTS transactions_partitioned (
   LIKE transactions INCLUDING DEFAULTS INCLUDING CONSTRAINTS
-) PARTITION BY RANGE (created_at);
-
-CREATE TABLE IF NOT EXISTS decision_audit_log_partitioned (
-  LIKE decision_audit_log INCLUDING DEFAULTS
 ) PARTITION BY RANGE (created_at);
 
 COMMENT ON TABLE alert_budget_config IS 'Daily investigator capacity — cost-sensitive triage';

@@ -35,6 +35,7 @@ run_sql database/schema/ci_transactions_stub.sql
 
 # 1) Base OS schemas
 run_sql database/schema/cardops_os.sql
+run_sql database/schema/04_partition_stubs.sql
 run_sql database/schema/event_ingestion.sql
 run_sql database/schema/03_queue_notify.sql
 run_sql database/schema/feature_store.sql
