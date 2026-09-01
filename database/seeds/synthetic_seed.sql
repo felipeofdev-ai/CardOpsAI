@@ -30,6 +30,12 @@ BEGIN
   DELETE FROM cards WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
   DELETE FROM merchants WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
   DELETE FROM risk_rules WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
+  DELETE FROM alert_budget_usage WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
+  DELETE FROM alert_budget_config WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
+  DELETE FROM policy_documents WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
+  DELETE FROM regulatory_exports WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
+  DELETE FROM shadow_backtest_runs WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
+  DELETE FROM velocity_features WHERE tenant_id IN (SELECT id FROM tenants WHERE name = 'Synthetic Tenant 1');
   DELETE FROM tenants WHERE name = 'Synthetic Tenant 1';
 
   INSERT INTO tenants (name, status, risk_tier)
