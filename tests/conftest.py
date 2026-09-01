@@ -37,6 +37,10 @@ def _exec_file(conn, relpath: str) -> None:
     conn.commit()
 
 
+def _rollback(conn) -> None:
+    conn.rollback()
+
+
 @pytest.fixture(scope="session")
 def db_connection():
     _wait_for_db()

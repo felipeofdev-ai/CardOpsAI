@@ -98,20 +98,20 @@ def test_tenancy_rls_with_force(seed_data):
         assert tenants
         tid = tenants[0]
 
-        # Superusers bypass RLS — exercise policies as app role
-        cur.execute("SET ROLE cardops_app")
-        cur.execute("ALTER TABLE merchants FORCE ROW LEVEL SECURITY")
-        cur.execute("SELECT set_tenant(%s)", (tid,))
-        conn.commit()
-        cur.execute("SELECT count(*) FROM merchants")
-        visible = cur.fetchone()[0]
-        cur.execute("SELECT clear_tenant()")
-        conn.commit()
-        cur.execute("SELECT count(*) FROM merchants")
-        hidden = cur.fetchone()[0]
-        cur.execute("RESET ROLE")
-        cur.execute("ALTER TABLE merchants NO FORCE ROW LEVEL SECURITY")
-        conn.commit()
+        # Superusers bypass RLS — exercise policies as app role (RLS already enabled in multi_tenant_rls.sql)
+        try:
+            cur.execute("SET ROLE cardops_app")
+            cur.execute("SELECT set_tenant(%s)", (tid,))
+            conn.commit()
+            cur.execute("SELECT count(*) FROM merchants")
+            visible = cur.fetchone()[0]
+            cur.execute("SELECT clear_tenant()")
+            conn.commit()
+            cur.execute("SELECT count(*) FROM merchants")
+            hidden = cur.fetchone()[0]
+        finally:
+            cur.execute("RESET ROLE")
+            conn.commit()
 
     assert visible >= 1
     assert hidden == 0
