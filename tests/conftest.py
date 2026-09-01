@@ -98,7 +98,11 @@ def setup_schema(db_connection):
 
 @pytest.fixture(scope="session")
 def seed_data(setup_schema):
-    _exec_file(setup_schema, "database/seeds/synthetic_seed.sql")
+    try:
+        _exec_file(setup_schema, "database/seeds/synthetic_seed.sql")
+    except Exception:
+        _rollback(setup_schema)
+        raise
     return setup_schema
 
 
