@@ -112,6 +112,11 @@ BEGIN
     END IF;
   END LOOP;
 
+  -- Insert default alert budget for synthetic tenant
+  INSERT INTO alert_budget_config (tenant_id, daily_alert_budget)
+  SELECT id, 100 FROM tenants WHERE name = 'Synthetic Tenant 1'
+  ON CONFLICT DO NOTHING;
+
   -- Re-apply RLS policies
   ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
   ALTER TABLE merchants ENABLE ROW LEVEL SECURITY;

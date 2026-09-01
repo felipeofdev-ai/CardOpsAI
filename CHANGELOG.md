@@ -2,9 +2,24 @@
 
 All notable changes to CardOpsAI are documented here.
 
-## [Unreleased]
+## [Unreleased] — Tier-0 Enterprise
 
-### Added — Ops intelligence (GitHub-informed)
+### Added
+- FastAPI OpenAPI server (`cardops_api.py`, `api/server.py`)
+- Fortune 500 Risk Command Center dashboard (live API + demo fallback)
+- Cost-sensitive alert triage with daily budget
+- ML statistical challenger + hybrid scoring
+- YAML policy import engine
+- Shadow backtest batch runner
+- Regulatory audit packet export
+- Adverse action PDF generation
+- Prometheus metrics view
+- LISTEN/NOTIFY queue wakeup
+- FK constraints, partition-ready tables, RLS on risk_rules
+- Feature registry entries for velocity signals
+- CI: unified Postgres 17, API smoke job
+
+## [2.0.0] — Tier-1 Platform
 
 - Velocity feature engine (`refresh_velocity_features`) for card/merchant rolling windows
 - Explainable scoring API (`explain_transaction_risk`, `score_transaction`) with factor contributions

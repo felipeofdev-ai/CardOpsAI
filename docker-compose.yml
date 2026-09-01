@@ -27,5 +27,19 @@ services:
       postgres:
         condition: service_healthy
 
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: cardops-api
+    environment:
+      CARDOPS_DSN: postgresql://cardops:cardops_secret@postgres:5432/cardops_db
+      CARDOPS_API_PORT: "8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   cardops_pgdata:

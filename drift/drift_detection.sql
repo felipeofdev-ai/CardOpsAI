@@ -25,7 +25,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE VIEW drift_breaches AS
+CREATE OR REPLACE VIEW drift_breaches AS
 SELECT *
 FROM model_drift_metrics
 WHERE breach = TRUE

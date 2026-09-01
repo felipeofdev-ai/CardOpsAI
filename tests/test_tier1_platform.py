@@ -98,6 +98,8 @@ def test_tenancy_rls_with_force(seed_data):
         assert tenants
         tid = tenants[0]
 
+        # Superusers bypass RLS — exercise policies as app role
+        cur.execute("SET ROLE cardops_app")
         cur.execute("ALTER TABLE merchants FORCE ROW LEVEL SECURITY")
         cur.execute("SELECT set_tenant(%s)", (tid,))
         conn.commit()
@@ -107,6 +109,7 @@ def test_tenancy_rls_with_force(seed_data):
         conn.commit()
         cur.execute("SELECT count(*) FROM merchants")
         hidden = cur.fetchone()[0]
+        cur.execute("RESET ROLE")
         cur.execute("ALTER TABLE merchants NO FORCE ROW LEVEL SECURITY")
         conn.commit()
 

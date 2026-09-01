@@ -1,379 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CardOps AI — Risk Operations Dashboard</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>CardOpsAI · Tier-0 Risk Command Center</title>
 <style>
-  :root {
-    --bg: #0d1117;
-    --panel: #161b22;
-    --border: #30363d;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --accent: #58a6ff;
-    --good: #3fb950;
-    --bad: #f85149;
-    --warn: #d29922;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: "Segoe UI", "IBM Plex Sans", sans-serif;
-    background:
-      radial-gradient(1200px 600px at 10% -10%, #1f6feb33, transparent),
-      radial-gradient(900px 500px at 100% 0%, #23863622, transparent),
-      var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-  header {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    backdrop-filter: blur(8px);
-    position: sticky;
-    top: 0;
-    background: #0d1117cc;
-    z-index: 10;
-  }
-  header h1 {
-    margin: 0;
-    font-size: 1.15rem;
-    letter-spacing: 0.02em;
-  }
-  header span { color: var(--muted); font-size: 0.85rem; }
-  main {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1rem;
-    padding: 1rem 1.5rem 2rem;
-  }
-  section {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem;
-    animation: rise 0.5s ease both;
-  }
-  section:nth-child(1) { grid-column: span 4; animation-delay: 0.05s; }
-  section:nth-child(2) { grid-column: span 8; animation-delay: 0.1s; }
-  section:nth-child(3) { grid-column: span 6; animation-delay: 0.15s; }
-  section:nth-child(4) { grid-column: span 6; animation-delay: 0.2s; }
-  section:nth-child(5) { grid-column: span 12; animation-delay: 0.25s; }
-  @keyframes rise {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: none; }
-  }
-  h2 { margin: 0 0 0.75rem; font-size: 0.95rem; color: var(--accent); }
-  label { display: block; font-size: 0.75rem; color: var(--muted); margin-top: 0.5rem; }
-  input, select, button {
-    width: 100%;
-    margin-top: 0.25rem;
-    padding: 0.55rem 0.65rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: #0d1117;
-    color: var(--text);
-  }
-  button {
-    background: linear-gradient(180deg, #1f6feb, #1158c7);
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    margin-top: 0.85rem;
-    transition: transform 0.15s ease, filter 0.15s ease;
-  }
-  button:hover { filter: brightness(1.08); transform: translateY(-1px); }
-  button.danger { background: linear-gradient(180deg, #da3633, #a40e26); }
-  .score {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0.75rem 0 0.25rem;
-  }
-  .muted { color: var(--muted); font-size: 0.8rem; }
-  .rules { margin-top: 0.75rem; max-height: 160px; overflow: auto; }
-  .rule {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.35rem 0;
-    border-bottom: 1px solid #21262d;
-    font-size: 0.8rem;
-  }
-  .fired { color: var(--warn); }
-  .ok { color: var(--good); }
-  .chain {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-  }
-  .block {
-    min-width: 120px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.6rem;
-    background: #0d1117;
-    transition: border-color 0.3s ease, background 0.3s ease;
-  }
-  .block.broken {
-    border-color: var(--bad);
-    background: #f8514922;
-    animation: pulse 1s ease infinite;
-  }
-  @keyframes pulse {
-    50% { box-shadow: 0 0 0 3px #f8514933; }
-  }
-  .block code { font-size: 0.65rem; color: var(--muted); word-break: break-all; }
-  canvas { width: 100%; height: 220px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); }
-  svg { width: 100%; height: 260px; background: #0d1117; border-radius: 8px; border: 1px solid var(--border); }
-  .health {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-  }
-  .metric {
-    background: #0d1117;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.75rem;
-  }
-  .metric b { display: block; font-size: 1.2rem; margin-top: 0.25rem; }
-  @media (max-width: 900px) {
-    section, section:nth-child(n) { grid-column: span 12; }
-    .health { grid-template-columns: 1fr 1fr; }
-  }
+:root{
+  --bg:#050810;--panel:#0c1222;--panel2:#111827;--border:#1e293b;
+  --platinum:#e2e8f0;--gold:#c9a227;--gold-dim:#8a7020;
+  --accent:#3b82f6;--good:#10b981;--bad:#ef4444;--warn:#f59e0b;--muted:#64748b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--platinum);min-height:100vh;
+  background-image:radial-gradient(ellipse 80% 50% at 50% -20%,#1e3a5f44,transparent),
+    linear-gradient(180deg,#050810 0%,#0a0f1a 100%);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;
+  border-bottom:1px solid var(--border);background:#050810ee;backdrop-filter:blur(12px);position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:1rem}
+.logo{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dim));
+  display:flex;align-items:center;justify-content:center;font-weight:800;color:#050810;font-size:1.1rem}
+.brand h1{font-size:1.15rem;font-weight:600;letter-spacing:.04em}
+.brand small{display:block;color:var(--muted);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase}
+.badge-tier{padding:.35rem .75rem;border:1px solid var(--gold);color:var(--gold);border-radius:999px;
+  font-size:.65rem;font-weight:700;letter-spacing:.15em}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--good);display:inline-block;margin-right:6px;
+  animation:pulse 2s infinite}
+.live-dot.off{background:var(--muted);animation:none}
+@keyframes pulse{50%{opacity:.4}}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:1rem;padding:1.25rem 2rem 2.5rem;max-width:1600px;margin:0 auto}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:1.25rem;
+  box-shadow:0 4px 24px #00000040}
+.card h2{font-size:.75rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:1rem;font-weight:600}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;grid-column:span 12}
+.kpi{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem}
+.kpi label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.kpi .val{font-size:1.75rem;font-weight:700;margin-top:.25rem;background:linear-gradient(90deg,var(--platinum),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.kpi .sub{font-size:.75rem;color:var(--muted);margin-top:.25rem}
+.span4{grid-column:span 4}.span6{grid-column:span 6}.span8{grid-column:span 8}.span12{grid-column:span 12}
+input,select,button{width:100%;padding:.65rem .85rem;border-radius:8px;border:1px solid var(--border);
+  background:var(--panel2);color:var(--platinum);margin-top:.35rem;font-size:.85rem}
+button{background:linear-gradient(135deg,var(--gold),var(--gold-dim));border:none;color:#050810;
+  font-weight:700;cursor:pointer;transition:transform .15s,filter .15s}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button.secondary{background:var(--panel2);color:var(--platinum);border:1px solid var(--border)}
+.score-display{font-size:2.5rem;font-weight:800;margin:.75rem 0;color:var(--gold)}
+.factors{max-height:180px;overflow:auto;font-size:.8rem}
+.factor{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #1e293b55}
+.fired{color:var(--warn)}.ok{color:var(--good)}
+.chain{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem}
+.block{min-width:110px;padding:.65rem;border-radius:8px;border:1px solid var(--border);background:var(--panel2);font-size:.7rem}
+.block.broken{border-color:var(--bad);background:#ef444422}
+canvas{width:100%;height:200px;background:var(--panel2);border-radius:8px;border:1px solid var(--border)}
+svg{width:100%;height:220px;background:var(--panel2);border-radius:8px;border:1px solid var(--border)}
+.api-banner{grid-column:span 12;padding:.75rem 1rem;border-radius:8px;font-size:.85rem;display:flex;align-items:center;gap:.75rem}
+.api-banner.live{background:#10b98118;border:1px solid #10b98155;color:var(--good)}
+.api-banner.demo{background:#f59e0b18;border:1px solid #f59e0b55;color:var(--warn)}
+@media(max-width:1100px){.kpi-row{grid-template-columns:1fr 1fr}.span4,.span6,.span8{grid-column:span 12}}
 </style>
 </head>
 <body>
-<header>
-  <h1>CardOps AI — Risk Operations Dashboard</h1>
-  <span>Local demo · no external deps</span>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">CO</div>
+    <div>
+      <h1>CardOpsAI</h1>
+      <small>Tier-0 Risk Command Center · Fortune 500 Grade</small>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <span class="badge-tier">TIER-0</span>
+    <span id="apiStatus"><span class="live-dot off"></span>Connecting…</span>
+  </div>
 </header>
-<main>
-  <section>
-    <h2>Transaction Simulator</h2>
-    <label>Amount (cents)</label>
-    <input id="amount" type="number" value="125000" />
-    <label>Merchant risk</label>
-    <input id="merchantRisk" type="number" value="72" />
-    <label>Card risk</label>
-    <input id="cardRisk" type="number" value="40" />
-    <label>MCC</label>
-    <select id="mcc">
-      <option>5411</option>
-      <option selected>7995</option>
-      <option>5912</option>
-      <option>5812</option>
-    </select>
-    <button id="scoreBtn">Compute Risk Score</button>
-    <div class="score" id="scoreOut">—</div>
-    <div class="muted" id="decisionOut">Decision explainability appears here</div>
-    <div class="rules" id="rulesOut"></div>
+
+<main class="grid">
+  <div id="banner" class="api-banner demo"><span class="live-dot off"></span> Demo mode — start API: <code>python cardops_api.py</code></div>
+
+  <div class="kpi-row">
+    <div class="kpi"><label>Queue Depth</label><div class="val" id="kpiQueue">—</div><div class="sub">pending decisions</div></div>
+    <div class="kpi"><label>P1 Alerts</label><div class="val" id="kpiP1">—</div><div class="sub">critical triage</div></div>
+    <div class="kpi"><label>Ledger</label><div class="val" id="kpiLedger">—</div><div class="sub">hash chain integrity</div></div>
+    <div class="kpi"><label>Budget Left</label><div class="val" id="kpiBudget">—</div><div class="sub">daily alert capacity</div></div>
+  </div>
+
+  <section class="card span4">
+    <h2>Transaction Scoring</h2>
+    <label>Tenant ID</label><input id="tenantId" type="number" value="1"/>
+    <label>Transaction ID</label><input id="txId" type="number" value="1"/>
+    <label>Amount (demo fallback)</label><input id="amount" type="number" value="125000"/>
+    <button id="btnScore" style="margin-top:.85rem">Score · Hybrid ML</button>
+    <div class="score-display" id="scoreOut">—</div>
+    <div id="decisionOut" style="font-size:.85rem;color:var(--muted)"></div>
+    <div class="factors" id="rulesOut"></div>
   </section>
 
-  <section>
-    <h2>Hash Chain Visualizer</h2>
+  <section class="card span8">
+    <h2>Hash Chain · Tamper Evidence</h2>
     <div class="chain" id="chain"></div>
-    <button class="danger" id="tamperBtn">Simulate Malicious Tamper</button>
-    <p class="muted" id="chainStatus">Chain integrity: OK</p>
+    <button class="secondary" id="tamperBtn" style="margin-top:.75rem;width:auto;display:inline-block;padding:.5rem 1rem">Simulate Tamper</button>
+    <p id="chainStatus" style="margin-top:.75rem;font-size:.8rem;color:var(--good)">Chain integrity: OK</p>
   </section>
 
-  <section>
-    <h2>Monte Carlo Loss Distribution</h2>
-    <canvas id="mcChart" width="640" height="220"></canvas>
-    <p class="muted" id="mcLegend"></p>
+  <section class="card span6">
+    <h2>Monte Carlo · Capital Stress</h2>
+    <canvas id="mcChart" width="640" height="200"></canvas>
+    <p id="mcLegend" style="font-size:.75rem;color:var(--muted);margin-top:.5rem"></p>
   </section>
 
-  <section>
-    <h2>Fraud Ring Graph</h2>
-    <svg id="ringSvg" viewBox="0 0 640 260"></svg>
+  <section class="card span6">
+    <h2>Fraud Ring Intelligence</h2>
+    <svg id="ringSvg" viewBox="0 0 640 220"></svg>
   </section>
 
-  <section>
-    <h2>System Health</h2>
-    <div class="health" id="health"></div>
+  <section class="card span12">
+    <h2>Expected-Loss Triage Queue</h2>
+    <div id="triageTable" style="font-size:.8rem;overflow:auto"></div>
   </section>
 </main>
+
 <script>
-const RULES = [
-  { name: 'high_amount', test: s => s.amount >= 100000, weight: 1.2 },
-  { name: 'risky_mcc', test: s => ['7995','5912','5122'].includes(s.mcc), weight: 1.5 },
-  { name: 'merchant_elevated', test: s => s.merchantRisk >= 60, weight: 1.1 },
-  { name: 'card_elevated', test: s => s.cardRisk >= 60, weight: 1.0 },
-  { name: 'decline_band', test: s => s.amount >= 200000, weight: 2.0 },
-  { name: 'review_band', test: s => s.amount >= 40000 && s.amount < 100000, weight: 0.8 },
-  { name: 'feature_spike', test: s => s.merchantRisk + s.cardRisk >= 120, weight: 1.3 },
-];
+const API = localStorage.getItem('cardops_api') || 'http://localhost:8000';
+let live = false;
+let tenantId = 1;
 
-function scoreTransaction(s) {
-  let w = 0, f = 0;
-  const detail = RULES.map(r => {
-    const fired = r.test(s);
-    w += r.weight;
-    if (fired) f += r.weight;
-    return { ...r, fired };
-  });
-  const score = Math.round((f / w) * 10000) / 100;
-  let decision = 'review';
-  if (score < 40) decision = 'approved';
-  else if (score > 80) decision = 'declined';
-  return { score, decision, detail };
+async function api(path, opts) {
+  const r = await fetch(API + path, opts);
+  if (!r.ok) throw new Error(await r.text());
+  const ct = r.headers.get('content-type') || '';
+  if (ct.includes('json')) return r.json();
+  return r.text();
 }
 
-document.getElementById('scoreBtn').onclick = () => {
-  const s = {
-    amount: Number(document.getElementById('amount').value),
-    merchantRisk: Number(document.getElementById('merchantRisk').value),
-    cardRisk: Number(document.getElementById('cardRisk').value),
-    mcc: document.getElementById('mcc').value,
-  };
-  const r = scoreTransaction(s);
-  document.getElementById('scoreOut').textContent = r.score.toFixed(2);
-  document.getElementById('decisionOut').textContent = `Decision: ${r.decision.toUpperCase()} · threshold band 40 / 80`;
-  document.getElementById('rulesOut').innerHTML = r.detail.map(d =>
-    `<div class="rule"><span>${d.name}</span><span class="${d.fired ? 'fired' : 'ok'}">${d.fired ? 'FIRED' : 'ok'} · w=${d.weight}</span></div>`
+function setLive(on) {
+  live = on;
+  const b = document.getElementById('banner');
+  const s = document.getElementById('apiStatus');
+  b.className = 'api-banner ' + (on ? 'live' : 'demo');
+  b.innerHTML = on
+    ? '<span class="live-dot"></span> Live · PostgreSQL Risk OS connected at ' + API
+    : '<span class="live-dot off"></span> Demo mode — run <code>docker compose up -d</code> then <code>python cardops_api.py</code>';
+  s.innerHTML = (on ? '<span class="live-dot"></span>LIVE' : '<span class="live-dot off"></span>DEMO');
+}
+
+async function refreshKPIs() {
+  tenantId = +document.getElementById('tenantId').value || 1;
+  if (!live) { demoKPIs(); return; }
+  try {
+    const h = await api('/api/v1/system/health?tenant_id=' + tenantId);
+    document.getElementById('kpiQueue').textContent = h.pending_queue ?? '—';
+    document.getElementById('kpiP1').textContent = h.p1_alerts ?? '—';
+    document.getElementById('kpiLedger').textContent = h.ledger_ok === 'true' ? 'SECURE' : 'BREACH';
+    const b = await api('/api/v1/budget?tenant_id=' + tenantId);
+    document.getElementById('kpiBudget').textContent = b.remaining_budget ?? '—';
+    const t = await api('/api/v1/triage?tenant_id=' + tenantId + '&limit=10');
+    document.getElementById('triageTable').innerHTML = t.alerts.length
+      ? '<table style="width:100%;border-collapse:collapse"><tr><th align=left>TX</th><th>Loss</th><th>Score</th><th>Band</th></tr>'
+        + t.alerts.map(a=>'<tr><td>'+a.transaction_id+'</td><td>'+(a.expected_loss||0).toFixed(2)+'</td><td>'+(a.risk_score||0)+'</td><td>'+a.priority_band+'</td></tr>').join('')
+        + '</table>'
+      : '<em>No alerts in budget window</em>';
+  } catch(e) { console.warn(e); }
+}
+
+function demoKPIs() {
+  document.getElementById('kpiQueue').textContent = '47';
+  document.getElementById('kpiP1').textContent = '12';
+  document.getElementById('kpiLedger').textContent = 'SECURE';
+  document.getElementById('kpiBudget').textContent = '73';
+}
+
+async function scoreTx() {
+  tenantId = +document.getElementById('tenantId').value || 1;
+  const txId = +document.getElementById('txId').value || 1;
+  if (live) {
+    try {
+      const r = await api('/api/v1/score/' + txId + '?tenant_id=' + tenantId + '&hybrid=true', {method:'POST'});
+      renderScore(r);
+      return;
+    } catch(e) { console.warn(e); }
+  }
+  demoScore();
+}
+
+function renderScore(r) {
+  const score = r.hybrid_score ?? r.score ?? 0;
+  document.getElementById('scoreOut').textContent = (+score).toFixed(2);
+  document.getElementById('decisionOut').textContent = 'Action: ' + (r.action||r.decision||'—') + ' · Expected loss: ' + (r.expected_loss||0);
+  const factors = r.factors || [];
+  document.getElementById('rulesOut').innerHTML = factors.map(d =>
+    '<div class="factor"><span>'+d.factor+'</span><span class="'+(d.fired?'fired':'ok')+'">'+(d.fired?'FIRED':'ok')+'</span></div>'
   ).join('');
-};
-
-function sha256sync(str) {
-  // Lightweight demo hash (not cryptographic) for UI visualization only
-  let h1 = 0x811c9dc5 >>> 0, h2 = 0x811c9dc5 >>> 0;
-  for (let i = 0; i < str.length; i++) {
-    h1 = Math.imul(h1 ^ str.charCodeAt(i), 16777619) >>> 0;
-    h2 = Math.imul(h2 ^ (str.charCodeAt(i) + i), 2246822519) >>> 0;
-  }
-  return (h1.toString(16).padStart(8,'0') + h2.toString(16).padStart(8,'0')).repeat(4).slice(0, 64);
 }
 
-let chain = [];
-function buildChain(n = 6) {
-  chain = [];
-  let prev = 'GENESIS';
-  for (let i = 1; i <= n; i++) {
-    const decision = i % 3 === 0 ? 'declined' : (i % 2 ? 'approved' : 'review');
-    const payload = `${prev}|txn=${1000+i}|${decision}|amt=${10000*i}`;
-    const current = sha256sync(payload);
-    chain.push({ id: i, prev, current, decision, broken: false });
-    prev = current;
-  }
-  renderChain();
+function demoScore() {
+  const amt = +document.getElementById('amount').value;
+  const score = Math.min(100, (amt/5000)*30 + 25);
+  renderScore({score, action: score>80?'BLOCK':score>40?'REVIEW':'APPROVE', expected_loss: score/100*amt,
+    factors:[{factor:'high_amount',fired:amt>100000},{factor:'velocity',fired:false}]});
 }
 
-function renderChain() {
-  const el = document.getElementById('chain');
-  el.innerHTML = chain.map(b => `
-    <div class="block ${b.broken ? 'broken' : ''}">
-      <div>#${b.id} · ${b.decision}</div>
-      <code>${b.current.slice(0, 16)}…</code>
-    </div>
-  `).join('<div style="align-self:center;color:#8b949e">→</div>');
-  const broken = chain.some(b => b.broken);
-  document.getElementById('chainStatus').textContent = broken
-    ? 'Chain integrity: BROKEN — subsequent blocks invalidated'
-    : 'Chain integrity: OK';
-  document.getElementById('chainStatus').style.color = broken ? '#f85149' : '#3fb950';
+function buildChain(n=6){let chain=[],prev='GENESIS';for(let i=1;i<=n;i++){const d=i%3===0?'declined':'approved';
+  const h=Array.from({length:16},(_,j)=>((prev.charCodeAt(j%prev.length)+i*7)%16).toString(16)).join('');
+  chain.push({id:i,prev,current:h,decision:d,broken:false});prev=h;}
+  window._chain=chain;renderChain();}
+function renderChain(){const el=document.getElementById('chain');
+  el.innerHTML=window._chain.map(b=>'<div class="block '+(b.broken?'broken':'')+'">#'+b.id+' · '+b.decision+'<br><code style="color:var(--muted)">'+b.current.slice(0,12)+'…</code></div>').join('<span style="align-self:center;color:var(--muted)">→</span>');
+  document.getElementById('chainStatus').textContent=window._chain.some(b=>b.broken)?'Chain BREACH detected':'Chain integrity: OK';
+  document.getElementById('chainStatus').style.color=window._chain.some(b=>b.broken)?'var(--bad)':'var(--good)';}
+
+function drawMC(){
+  const c=document.getElementById('mcChart'),ctx=c.getContext('2d'),losses=[];
+  for(let i=0;i<800;i++){const u1=Math.max(Math.random(),1e-9),u2=Math.random();
+    const z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);losses.push(Math.max(0,250000+80000*z));}
+  losses.sort((a,b)=>a-b);const v95=losses[Math.floor(losses.length*.95)],v99=losses[Math.floor(losses.length*.99)];
+  const bins=24,mx=losses[losses.length-1],hist=Array(bins).fill(0);
+  losses.forEach(v=>hist[Math.min(bins-1,Math.floor(v/mx*bins))]++);
+  const mh=Math.max(...hist);ctx.clearRect(0,0,c.width,c.height);
+  hist.forEach((h,i)=>{const ht=(h/mh)*(c.height-20);ctx.fillStyle='#c9a22788';ctx.fillRect(i*(c.width/bins)+1,c.height-ht-8,c.width/bins-2,ht);});
+  document.getElementById('mcLegend').textContent='VaR95='+v95.toFixed(0)+' · VaR99='+v99.toFixed(0)+' · Reserve='+(v95*1.2).toFixed(0);
+}
+function drawRings(){
+  const svg=document.getElementById('ringSvg'),nodes=[{id:1,x:180,y:110},{id:2,x:300,y:50},{id:3,x:420,y:110},{id:4,x:300,y:170}];
+  let h='';[[1,2],[2,3],[3,4],[4,1]].forEach(([a,b])=>{h+=`<line x1="${nodes[a-1].x}" y1="${nodes[a-1].y}" x2="${nodes[b-1].x}" y2="${nodes[b-1].y}" stroke="#c9a227" stroke-width="2"/>`;});
+  nodes.forEach(n=>{h+=`<circle cx="${n.x}" cy="${n.y}" r="14" fill="#c9a22733" stroke="#c9a227" stroke-width="2"/><text x="${n.x}" y="${n.y+4}" text-anchor="middle" fill="#e2e8f0" font-size="10">M${n.id}</text>`;});
+  svg.innerHTML=h;
 }
 
-document.getElementById('tamperBtn').onclick = () => {
-  if (!chain.length) return;
-  const idx = 2;
-  chain[idx].decision = chain[idx].decision === 'approved' ? 'declined' : 'approved';
-  for (let i = idx; i < chain.length; i++) chain[i].broken = true;
-  renderChain();
-};
+document.getElementById('btnScore').onclick=scoreTx;
+document.getElementById('tamperBtn').onclick=()=>{window._chain[2].broken=true;window._chain[3].broken=true;renderChain();};
 
-function drawMonteCarlo() {
-  const canvas = document.getElementById('mcChart');
-  const ctx = canvas.getContext('2d');
-  const losses = [];
-  for (let i = 0; i < 1000; i++) {
-    const u1 = Math.max(Math.random(), 1e-12);
-    const u2 = Math.max(Math.random(), 1e-12);
-    const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-    losses.push(Math.max(0, 250000 + 80000 * z) * 30);
-  }
-  losses.sort((a,b) => a-b);
-  const var95 = losses[Math.floor(losses.length * 0.95)];
-  const var99 = losses[Math.floor(losses.length * 0.99)];
-  const cvar = losses.slice(Math.floor(losses.length * 0.95)).reduce((a,b)=>a+b,0) / (losses.length * 0.05);
-
-  const bins = 30;
-  const min = losses[0], max = losses[losses.length-1];
-  const hist = Array(bins).fill(0);
-  losses.forEach(v => {
-    const i = Math.min(bins-1, Math.floor((v - min) / (max - min + 1) * bins));
-    hist[i]++;
-  });
-  const maxH = Math.max(...hist);
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  const w = canvas.width / bins;
-  hist.forEach((h,i) => {
-    const height = (h / maxH) * (canvas.height - 30);
-    ctx.fillStyle = '#58a6ff88';
-    ctx.fillRect(i*w+1, canvas.height - height - 10, w-2, height);
-  });
-  function xFor(v){ return ((v-min)/(max-min)) * canvas.width; }
-  function line(v, color, label){
-    const x = xFor(v);
-    ctx.strokeStyle = color; ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke();
-    ctx.fillStyle = color; ctx.fillText(label, x+4, 14);
-  }
-  line(var95, '#d29922', 'VaR95');
-  line(var99, '#f85149', 'VaR99');
-  line(cvar, '#3fb950', 'CVaR95');
-  document.getElementById('mcLegend').textContent =
-    `VaR95=${var95.toFixed(0)} · VaR99=${var99.toFixed(0)} · CVaR95=${cvar.toFixed(0)} · reserve=${(cvar*1.2).toFixed(0)}`;
-}
-
-function drawRings() {
-  const svg = document.getElementById('ringSvg');
-  const nodes = [
-    {id:1,x:180,y:130},{id:2,x:300,y:60},{id:3,x:420,y:130},{id:4,x:300,y:200},
-    {id:5,x:520,y:80},{id:6,x:560,y:180}
-  ];
-  const edges = [[1,2],[2,3],[3,4],[4,1],[5,6]];
-  const ring = new Set([1,2,3,4]);
-  let html = '';
-  edges.forEach(([a,b]) => {
-    const n1 = nodes.find(n=>n.id===a), n2 = nodes.find(n=>n.id===b);
-    const hot = ring.has(a) && ring.has(b);
-    html += `<line x1="${n1.x}" y1="${n1.y}" x2="${n2.x}" y2="${n2.y}" stroke="${hot?'#f85149':'#30363d'}" stroke-width="${hot?3:1.5}" />`;
-  });
-  nodes.forEach(n => {
-    const hot = ring.has(n.id);
-    html += `<circle cx="${n.x}" cy="${n.y}" r="16" fill="${hot?'#f8514933':'#161b22'}" stroke="${hot?'#f85149':'#58a6ff'}" stroke-width="2">
-      <animate attributeName="r" values="16;18;16" dur="2s" repeatCount="indefinite"/></circle>`;
-    html += `<text x="${n.x}" y="${n.y+4}" text-anchor="middle" fill="#e6edf3" font-size="11">M${n.id}</text>`;
-  });
-  html += `<text x="24" y="28" fill="#8b949e" font-size="12">Highlighted cycle = suspected fraud ring</text>`;
-  svg.innerHTML = html;
-}
-
-function drawHealth() {
-  const started = Date.now() - 3_600_000;
-  const metrics = [
-    ['Queue depth', '47'],
-    ['Active rules', '15'],
-    ['Last snapshot', 'a3f9…c21e'],
-    ['Uptime', '1h+'],
-  ];
-  document.getElementById('health').innerHTML = metrics.map(([k,v]) =>
-    `<div class="metric"><span class="muted">${k}</span><b>${v}</b></div>`
-  ).join('');
-  setInterval(() => {
-    const hrs = ((Date.now()-started)/3600000);
-    document.querySelectorAll('.metric b')[3].textContent = hrs.toFixed(2) + 'h';
-  }, 1000);
-}
-
-buildChain();
-drawMonteCarlo();
-drawRings();
-drawHealth();
-document.getElementById('scoreBtn').click();
+(async()=>{
+  try{await api('/health');setLive(true);}catch{setLive(false);}
+  buildChain();drawMC();drawRings();demoKPIs();await refreshKPIs();
+  setInterval(refreshKPIs,15000);
+})();
 </script>
 </body>
 </html>

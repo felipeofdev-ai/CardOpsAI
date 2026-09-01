@@ -30,12 +30,13 @@ run_sql() {
 # 0) Clock + core entities (before OS modules that assume transactions)
 run_sql database/schema/00_extensions_and_clock.sql
 run_sql database/schema/01_core_entities.sql
-# Keep stub as no-op upgrade path for older docs/CI references
+run_sql database/schema/02_integrity_and_scale.sql
 run_sql database/schema/ci_transactions_stub.sql
 
 # 1) Base OS schemas
 run_sql database/schema/cardops_os.sql
 run_sql database/schema/event_ingestion.sql
+run_sql database/schema/03_queue_notify.sql
 run_sql database/schema/feature_store.sql
 run_sql database/schema/threshold_registry.sql
 run_sql database/schema/model_registry.sql
@@ -72,9 +73,15 @@ run_sql engines/economic/risk_capital_forecast.sql
 run_sql features/materialization/merchant_behavior_baseline.sql
 run_sql engines/features/velocity_engine.sql
 run_sql engines/decision/explainability_and_triage.sql
+run_sql engines/decision/cost_sensitive_triage.sql
 run_sql engines/decision/champion_challenger.sql
+run_sql engines/decision/shadow_backtest.sql
+run_sql engines/scoring/ml_challenger.sql
+run_sql engines/rules/yaml_rules_engine.sql
 run_sql drift/drift_detection.sql
 run_sql engines/fraud/geo_velocity.sql
+run_sql compliance/regulatory_export.sql
+run_sql features/registry/velocity_features_registry.sql
 run_sql economic/optimization_engine.sql
 run_sql stress/fraud_velocity_engine.sql
 run_sql stress/monte_carlo_engine.sql

@@ -9,12 +9,60 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%2F17-336791?style=for-the-badge&logo=postgresql&logoColor=white)](docker-compose.yml)
 [![SQL-first](https://img.shields.io/badge/Architecture-SQL--first-C9A86A?style=for-the-badge)](docs/architecture.md)
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Labs-5EC8C0?style=for-the-badge)](https://felipeofdev-ai.github.io/labs/cardopsai/)
+[![Tier-0](https://img.shields.io/badge/Tier--0-Enterprise-C9A86A?style=for-the-badge)](docs/dashboard.html)
+[![OpenAPI](https://img.shields.io/badge/API-OpenAPI-3b82f6?style=for-the-badge)](http://localhost:8000/docs)
 
-**Deterministic replay · Tamper-evident ledger · Multi-tenant RLS · Economic counterfactuals · Monte Carlo capital stress**
+**Deterministic replay · Tamper-evident ledger · Multi-tenant RLS · Hybrid ML scoring · Cost-sensitive triage · Regulatory export**
 
-[Quick Start](#quick-start) · [Architecture](#architecture) · [Capabilities](#what-makes-this-real) · [CLI](#operational-cli) · [Docs](#documentation)
+[Quick Start](#quick-start) · [Tier-0 Stack](#tier-0-enterprise-stack) · [Architecture](#architecture) · [API](#enterprise-api) · [CLI](#operational-cli)
 
 </div>
+
+---
+
+## Tier-0 Enterprise Stack
+
+| Surface | URL | Purpose |
+|---------|-----|---------|
+| **Risk Command Center** | `docs/dashboard.html` → `:8888` | Fortune 500 UI · live KPIs |
+| **OpenAPI** | `:8000/docs` | Score, triage, audit, compliance |
+| **Prometheus** | `:8000/api/v1/metrics/prometheus` | Queue, drift, ledger metrics |
+| **Adminer** | `:8080` | SQL console |
+| **CLI** | `cardops_cli.py` | Operator terminal |
+
+```bash
+docker compose up -d --build   # Postgres + API + Adminer
+make serve                     # Dashboard on :8888
+python cardops_api.py          # API on :8000
+```
+
+### Tier-0 capabilities (new)
+
+- **Cost-sensitive triage** — `triage_within_budget()` ranks by expected loss under daily investigator capacity
+- **Hybrid ML challenger** — `compute_hybrid_score()` blends rules + statistical anomaly lane
+- **YAML policies** — risk managers deploy rules without SQL (`import_yaml_policy`)
+- **Shadow backtest** — batch champion vs challenger over 30 days
+- **Adverse action PDF** — `/api/v1/compliance/adverse-action/{tx_id}`
+- **Regulatory packet** — Nacha-style audit export with ledger + policy hash
+- **LISTEN/NOTIFY** — queue workers wake on `pg_notify`
+- **Prometheus metrics** — operational observability out of the box
+
+---
+
+## Enterprise API
+
+Full OpenAPI spec at **`http://localhost:8000/docs`** after `python cardops_api.py`.
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/system/health` | Operator health panel |
+| `POST /api/v1/score/{tx_id}?hybrid=true` | Explainable + hybrid ML score |
+| `GET /api/v1/triage` | Expected-loss triage within budget |
+| `POST /api/v1/shadow/backtest` | Champion/challenger batch |
+| `POST /api/v1/policies/yaml` | Import human-editable policies |
+| `GET /api/v1/compliance/export/{tenant_id}` | Regulatory audit packet |
+| `GET /api/v1/compliance/adverse-action/{tx_id}` | PDF adverse action notice |
+| `GET /api/v1/metrics/prometheus` | Prometheus scrape endpoint |
 
 ---
 

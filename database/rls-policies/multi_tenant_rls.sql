@@ -1,6 +1,17 @@
--- Multi-tenant RLS policies
--- ENABLE on tenant tables; FORCE only on tamper-critical audit ledger
--- (superuser can still run OS analytics views without set_tenant)
+-- Allow pytest/CLI to exercise RLS as a non-superuser app role
+DO $$ BEGIN
+  CREATE ROLE cardops_app WITH LOGIN PASSWORD 'cardops_app' NOINHERIT;
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+GRANT USAGE ON SCHEMA public TO cardops_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO cardops_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO cardops_app;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO cardops_app;
+DO $$ BEGIN
+  GRANT cardops_app TO cardops;
+EXCEPTION WHEN undefined_object THEN NULL;
+END $$;
 
 CREATE OR REPLACE FUNCTION get_current_tenant() RETURNS BIGINT AS $$
   SELECT NULLIF(current_setting('app.current_tenant', true), '')::BIGINT;
@@ -48,6 +59,27 @@ BEGIN
   END IF;
   IF to_regclass('public.decision_audit_log') IS NOT NULL THEN
     PERFORM cardops_apply_tenant_rls('decision_audit_log', TRUE);
+  END IF;
+  IF to_regclass('public.risk_rules') IS NOT NULL THEN
+    PERFORM cardops_apply_tenant_rls('risk_rules', FALSE);
+  END IF;
+  IF to_regclass('public.policy_documents') IS NOT NULL THEN
+    PERFORM cardops_apply_tenant_rls('policy_documents', FALSE);
+  END IF;
+  IF to_regclass('public.alert_budget_config') IS NOT NULL THEN
+    PERFORM cardops_apply_tenant_rls('alert_budget_config', FALSE);
+  END IF;
+  IF to_regclass('public.alert_budget_usage') IS NOT NULL THEN
+    PERFORM cardops_apply_tenant_rls('alert_budget_usage', FALSE);
+  END IF;
+  IF to_regclass('public.shadow_backtest_runs') IS NOT NULL THEN
+    PERFORM cardops_apply_tenant_rls('shadow_backtest_runs', FALSE);
+  END IF;
+  IF to_regclass('public.regulatory_exports') IS NOT NULL THEN
+    PERFORM cardops_apply_tenant_rls('regulatory_exports', FALSE);
+  END IF;
+  IF to_regclass('public.shadow_decision_log') IS NOT NULL THEN
+    PERFORM cardops_apply_tenant_rls('shadow_decision_log', FALSE);
   END IF;
 END $$;
 

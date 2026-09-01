@@ -47,27 +47,27 @@ def db_connection():
 
 @pytest.fixture(scope="session")
 def setup_schema(db_connection):
-    """Load full stack once via psql-equivalent ordered files."""
+    """Load full stack once via bash or Python fallback."""
+    import os
     import subprocess
+
+    if os.environ.get("CARDOPS_SCHEMA_LOADED") == "1":
+        return db_connection
 
     env = os.environ.copy()
     env["CARDOPS_DSN"] = DSN
     env["SKIP_SEED"] = "1"
     script = ROOT / "scripts" / "load_all_sql.sh"
-    # Prefer bash when available; otherwise apply a minimal critical path in Python
     try:
-        subprocess.run(
-            ["bash", str(script)],
-            cwd=str(ROOT),
-            env=env,
-            check=True,
-        )
+        subprocess.run(["bash", str(script)], cwd=str(ROOT), env=env, check=True)
     except (FileNotFoundError, subprocess.CalledProcessError):
         critical = [
             "database/schema/00_extensions_and_clock.sql",
             "database/schema/01_core_entities.sql",
+            "database/schema/02_integrity_and_scale.sql",
             "database/schema/cardops_os.sql",
             "database/schema/event_ingestion.sql",
+            "database/schema/03_queue_notify.sql",
             "database/schema/tier1_extensions.sql",
             "database/functions/set_tenant.sql",
             "database/functions/hash_chain.sql",
@@ -75,8 +75,15 @@ def setup_schema(db_connection):
             "snapshots/replay/deterministic_time.sql",
             "engines/scoring/risk_score_engine.sql",
             "engines/decision/decision_processor.sql",
+            "engines/features/velocity_engine.sql",
+            "engines/decision/explainability_and_triage.sql",
+            "engines/decision/cost_sensitive_triage.sql",
+            "engines/decision/champion_challenger.sql",
+            "engines/decision/shadow_backtest.sql",
+            "engines/scoring/ml_challenger.sql",
             "engines/fraud/fraud_ring_detection.sql",
             "stress/box_muller_monte_carlo.sql",
+            "compliance/regulatory_export.sql",
             "database/rls-policies/multi_tenant_rls.sql",
         ]
         for rel in critical:
